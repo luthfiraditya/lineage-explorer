@@ -1,0 +1,6 @@
+{
+  "name": "MIKA Data Lineage Explorer",
+  "description": "ABAP Conversion List & Data Lineage Tracking Dashboard",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
