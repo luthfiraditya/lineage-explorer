@@ -144,16 +144,12 @@ export default function LineageExplorer() {
     );
   }, [activeLayers, pageFilter, search]);
 
-  const { highlighted, upSet, downSet } = useMemo(() => {
+  const { upSet, downSet, directUpSet, directDownSet } = useMemo(() => {
+    const directUpSet = selectedNode ? new Set<string>(upstream[selectedNode] || []) : new Set<string>();
+    const directDownSet = selectedNode ? new Set<string>(downstream[selectedNode] || []) : new Set<string>();
     const upSet = selectedNode ? getAllUpstream(selectedNode) : new Set<string>();
     const downSet = selectedNode ? getAllDownstream(selectedNode) : new Set<string>();
-    const highlighted = new Set<string>();
-    if (selectedNode) {
-      highlighted.add(selectedNode);
-      upSet.forEach(id => highlighted.add(id));
-      downSet.forEach(id => highlighted.add(id));
-    }
-    return { highlighted, upSet, downSet };
+    return { upSet, downSet, directUpSet, directDownSet };
   }, [selectedNode]);
 
   const toggleLayer = (l: string) => {
@@ -278,14 +274,9 @@ export default function LineageExplorer() {
                 let strokeWidth = 1.2;
 
                 if (selectedNode) {
-                  const sUp = upSet.has(e.source);
-                  const tUp = upSet.has(e.target);
-                  const sDn = downSet.has(e.source);
-                  const tDn = downSet.has(e.target);
-
-                  if ((e.target === selectedNode && sUp) || (sUp && tUp)) {
+                  if (e.target === selectedNode && directUpSet.has(e.source)) {
                     stroke = "#10b981"; opacity = 1; strokeWidth = 2; marker = "url(#arr-up)";
-                  } else if ((e.source === selectedNode && tDn) || (sDn && tDn)) {
+                  } else if (e.source === selectedNode && directDownSet.has(e.target)) {
                     stroke = "#f59e0b"; opacity = 1; strokeWidth = 2; marker = "url(#arr-down)";
                   } else {
                     opacity = 0.08;
@@ -325,8 +316,8 @@ export default function LineageExplorer() {
 
               const pos = nodePos[n.id];
               const isSelected = selectedNode === n.id;
-              const isUpstream = selectedNode && upSet.has(n.id);
-              const isDownstream = selectedNode && downSet.has(n.id);
+              const isUpstream = selectedNode && directUpSet.has(n.id);
+              const isDownstream = selectedNode && directDownSet.has(n.id);
               const isDimmed = selectedNode && !isSelected && !isUpstream && !isDownstream;
 
               let bg = "bg-slate-800";
